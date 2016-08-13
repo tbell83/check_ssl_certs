@@ -1,5 +1,5 @@
 #!/usr/local/bin/python
-import socket
+from socket import socket
 from OpenSSL import SSL
 import argparse
 from sys import exit
@@ -21,7 +21,7 @@ for hostname in hostnames:
     print '\n{}\n-----------'.format(hostname)
     port = hostnames[hostname]
     ctx = SSL.Context(SSL.TLSv1_METHOD)
-    sock = socket.socket()
+    sock = socket()
     ssl_sock = SSL.Connection(ctx, sock)
     ssl_sock.set_tlsext_host_name(str(hostname))
     ssl_sock.connect((hostname, port))
