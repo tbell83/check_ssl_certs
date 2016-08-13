@@ -1,0 +1,14 @@
+{
+  "hosts": {
+    "analytics.aweber.com": 443,
+    "awas.aweber.com": 443,
+    "forms.aweber.com": 443,
+    "search.aweber.com": 443,
+    "jss.aweber.com": 8443,
+    "registry.aweberprivate.com": 443,
+    "rabbitmq.awebertest.com": 443,
+    "rabbitmq.aweberstage.com": 443,
+    "rabbitmq.aweberprod.com": 443,
+    "help.aweber.com": 443
+  }
+}

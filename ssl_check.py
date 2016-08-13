@@ -1,18 +1,21 @@
+#!/usr/local/bin/python
 import socket
 from OpenSSL import SSL
+import argparse
+from sys import exit
+import json
 
-hostnames = {
-    'analytics.aweber.com': 443,
-    'awas.aweber.com': 443,
-    'forms.aweber.com': 443,
-    'search.aweber.com': 443,
-    'jss.aweber.com': 8443,
-    'registry.aweberprivate.com': 443,
-    'rabbitmq.awebertest.com': 443,
-    'rabbitmq.aweberstage.com': 443,
-    'rabbitmq.aweberprod.com': 443,
-    'help.aweber.com': 443
-}
+parser = argparse.ArgumentParser()
+parser.add_argument('-c', '--config', action='store', type=str)
+args = parser.parse_args()
+
+try:
+    with open(args.config, 'r') as config_file:
+        config = json.load(config_file)
+except:
+    exit('No valid config file.')
+
+hostnames = config['hosts']
 
 for hostname in hostnames:
     print '\n{}\n-----------'.format(hostname)
@@ -20,7 +23,7 @@ for hostname in hostnames:
     ctx = SSL.Context(SSL.TLSv1_METHOD)
     sock = socket.socket()
     ssl_sock = SSL.Connection(ctx, sock)
-    ssl_sock.set_tlsext_host_name(hostname)
+    ssl_sock.set_tlsext_host_name(str(hostname))
     ssl_sock.connect((hostname, port))
     ssl_sock.do_handshake()
     cert_chain = ssl_sock.get_peer_cert_chain()
@@ -35,4 +38,4 @@ for hostname in hostnames:
         second = cert.get_notAfter()[12:14]
         date = '{}/{}/{} {}:{}:{}'.format(month, day, year, hour,
                                           minute, second)
-        print 'Expiration: {}'.format(date)
+        print 'Expiration: {}\n'.format(date)
