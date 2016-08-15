@@ -1,20 +1,20 @@
 #!/usr/local/bin/python
 from socket import socket
 from OpenSSL import SSL
-import argparse
+from argparse import ArgumentParser
 from sys import exit
-import json
+from json import load
 from datetime import datetime
 from re import search
 
-parser = argparse.ArgumentParser()
+parser = ArgumentParser()
 parser.add_argument('-c', '--config', action='store', type=str)
 parser.add_argument('-w', '--show-warnings', action='store_true')
 args = parser.parse_args()
 
 try:
     with open(args.config, 'r') as config_file:
-        config = json.load(config_file)
+        config = load(config_file)
 except:
     exit('No valid config file.')
 
@@ -36,10 +36,12 @@ for hostname in hostnames:
             printing = False
         else:
             printing = True
+
         sig = 'Signature Algorithm: {}'.format(cert.get_signature_algorithm())
         if search('sha1', sig):
             printing = True
             sig = 'Warning, SHA1 signature\n' + sig
+
         tz = cert.get_notAfter()[14:]
         date = datetime.strptime(cert.get_notAfter()[:14], '%Y%m%d%H%M%S')
         expiration = 'Expiration: {}{}\n'.format(date, tz)
