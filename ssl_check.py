@@ -5,9 +5,11 @@ import argparse
 from sys import exit
 import json
 from datetime import datetime
+from re import search
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-c', '--config', action='store', type=str)
+parser.add_argument('-w', '--show-warnings', action='store_true')
 args = parser.parse_args()
 
 try:
@@ -17,6 +19,7 @@ except:
     exit('No valid config file.')
 
 hostnames = config['hosts']
+current_date = datetime.now()
 
 for hostname in hostnames:
     print '\n{}\n-----------'.format(hostname)
@@ -29,8 +32,22 @@ for hostname in hostnames:
     ssl_sock.do_handshake()
     cert_chain = ssl_sock.get_peer_cert_chain()
     for cert in cert_chain:
-        print 'Common Name: {}'.format(cert.get_subject().commonName)
-        print 'Signature Algorithm: {}'.format(cert.get_signature_algorithm())
+        if args.show_warnings:
+            printing = False
+        else:
+            printing = True
+        sig = 'Signature Algorithm: {}'.format(cert.get_signature_algorithm())
+        if search('sha1', sig):
+            printing = True
+            sig = 'Warning, SHA1 signature:\n' + sig
         tz = cert.get_notAfter()[14:]
         date = datetime.strptime(cert.get_notAfter()[:14], '%Y%m%d%H%M%S')
-        print 'Expiration: {}{}\n'.format(date, tz)
+        expiration = 'Expiration: {}{}\n'.format(date, tz)
+        if (date - current_date).days < 90:
+            printing = True
+            expiration = 'Warning, Certificate expiring soon:\n' + expiration
+
+        if printing:
+            print 'Common Name: {}'.format(cert.get_subject().commonName)
+            print sig
+            print expiration
