@@ -39,13 +39,15 @@ for hostname in hostnames:
         sig = 'Signature Algorithm: {}'.format(cert.get_signature_algorithm())
         if search('sha1', sig):
             printing = True
-            sig = 'Warning, SHA1 signature:\n' + sig
+            sig = 'Warning, SHA1 signature\n' + sig
         tz = cert.get_notAfter()[14:]
         date = datetime.strptime(cert.get_notAfter()[:14], '%Y%m%d%H%M%S')
         expiration = 'Expiration: {}{}\n'.format(date, tz)
         if (date - current_date).days < 90:
             printing = True
-            expiration = 'Warning, Certificate expiring soon:\n' + expiration
+            expiration = 'Warning, Certificate expiring soon: {} days ' \
+                         'remaining\n'.format((date - current_date).days) \
+                         + expiration
 
         if printing:
             print 'Common Name: {}'.format(cert.get_subject().commonName)
